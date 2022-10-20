@@ -23,9 +23,35 @@ Problem A
 Monte Carlo simulations.
 
 --->
+ 
+``` {r, echo = FALSE}
+num_sim = 10000
 
+set.seed(314)
 
+## create a vector of length num_sim of all zeros:
+P <- rep(0, num_sim) 
 
+for(i in 1:num_sim){
+
+X <- rnorm(1, mean=4, sd=sqrt(10))
+Y <- runif(1, min=2, max=8)
+
+if(X>Y){
+  
+  P[i] <- 1
+  
+      }
+}
+
+print(sum(P)/num_sim)
+
+## want something like:
+## if prob X>Y 'do something'
+##prob is just = nbr of successes (X>Y)/ number of attempts
+## x[i] <- 1
+
+```
 
 ## Problem B
 
