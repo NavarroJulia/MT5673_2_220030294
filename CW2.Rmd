@@ -50,12 +50,7 @@ if(X>Y){
 print(sum(P)/num_sim)
 
 
-```
 
-
-
-
-```{r, echo = FALSE}
 
 ## Use bootstrapping to derive the sampling distribution for your estimate of Pr(X > Y)
 
@@ -89,11 +84,20 @@ bootRes <- matrix(data = 0, nrow = NRepeat, ncol = 1) # results
 S <- matrix(0, num_sim, NRepeat)
 
 
-## Got to run it twice???
 
+#########
+
+
+## Values are after the first 100 values
+
+
+#########
+
+
+#   i in seq(NRepeat)
 
 # Loop across all samples
-for (i in seq(NRepeat)){
+for (i in 1:NRepeat){
   
   ## Resample with replacement:
   
@@ -111,8 +115,8 @@ for (i in seq(NRepeat)){
      
      bootRes[i] <- (sum(S[,j])/num_sim) 
      
-                             }
-                                    }
+    }
+  }
 }
 
 
