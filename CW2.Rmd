@@ -25,7 +25,10 @@ Monte Carlo simulations.
 --->
  
 ``` {r, echo = FALSE}
-num_sim = 10000
+
+## Compute the probability that X > Y , i.e. Pr(X > Y ):
+
+num_sim = 100
 
 set.seed(314)
 
@@ -46,10 +49,74 @@ if(X>Y){
 
 print(sum(P)/num_sim)
 
-## want something like:
-## if prob X>Y 'do something'
-##prob is just = nbr of successes (X>Y)/ number of attempts
-## x[i] <- 1
+
+```
+
+
+
+
+```{r, echo = FALSE}
+
+## Use bootstrapping to derive the sampling distribution for your estimate of Pr(X > Y)
+
+
+## calculate each probability and store it in vector and then find sampling distribution
+
+## set seed:
+set.seed(413)
+
+## create vectors of probabilities:
+x <- rnorm(num_sim, mean=4, sd=sqrt(10))
+y <- runif(num_sim, min=2, max=8)
+
+## store in data.frame:
+obsData <- data.frame(x, y) 
+
+
+
+
+## need data from both X and Y. We then use the bootstrap method with replacement and apply the function
+## as used above to calculate the probability (need to derive a sampling distribution)
+
+
+# Initialisation
+
+NRepeat <- 500 # no. of bootstrapped samples
+
+bootRes <- matrix(data = 0, nrow = NRepeat, ncol = 1) # results
+
+ 
+S <- matrix(0, num_sim, NRepeat)
+
+
+## Got to run it twice???
+
+
+# Loop across all samples
+for (i in seq(NRepeat)){
+  
+  ## Resample with replacement:
+  
+  bootData <- obsData[sample(x = num_sim, size = num_sim, replace = T),]
+  
+  
+  ## calculate the probability associated with this new shuffled data:
+  
+  for (j in 1:nrow(bootData)){
+    
+    if(bootData[j,1] > bootData[j,2]){
+         
+     S[j,i] <- 1
+     
+     
+     bootRes[i] <- (sum(S[,j])/num_sim) 
+     
+                             }
+                                    }
+}
+
+
+
 
 ```
 
