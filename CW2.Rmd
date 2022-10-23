@@ -76,30 +76,23 @@ obsData <- data.frame(x, y)
 
 # Initialisation
 
-k= 99 # need to add 99 more because the first 99 do not show otherwise in the loop
+NRepeat <- 500 # no. of bootstrapped samples
 
-NRepeat <- 500 + k # no. of bootstrapped samples
+## Column of results (propbabilities of each bootstrap iteration)
 
-bootRes <- matrix(data = 0, nrow = NRepeat, ncol = 1) # results
-
- 
-S <- matrix(0, num_sim, NRepeat)
+bootRes <- matrix(data = 0, nrow = NRepeat, ncol = 1) 
 
 
-
-#########
-
-
-## Values are after the first 100 values
+S <- rep(0, num_sim)
 
 
-#########
+## Got to run it twice???
 
 
-#   i in seq(NRepeat)
+## Loop across all samples:
 
-# Loop across all samples
-for (i in 1:NRepeat){
+
+for (i in 1:(NRepeat)){
   
   ## Resample with replacement:
   
@@ -111,17 +104,21 @@ for (i in 1:NRepeat){
   for (j in 1:nrow(bootData)){
     
     if(bootData[j,1] > bootData[j,2]){
-         
-     S[j,i] <- 1
-     
-     
-     bootRes[i] <- (sum(S[,j])/num_sim) 
-     
-    }
-  }
+      
+      S[j] <- 1
+      
+    }}
+    
+    
+      
+      bootRes[i] <- (sum(S)/num_sim)
+      
+     S <- rep(0, num_sim) 
+  
 }
 
-VecProb <- bootRes[c(100:nrow(bootRes)),]
+
+#S <- rep(0, num_sim)
 
 
 ```
