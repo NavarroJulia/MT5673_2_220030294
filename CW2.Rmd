@@ -76,7 +76,9 @@ obsData <- data.frame(x, y)
 
 # Initialisation
 
-NRepeat <- 500 # no. of bootstrapped samples
+k= 99 # need to add 99 more because the first 99 do not show otherwise in the loop
+
+NRepeat <- 500 + k # no. of bootstrapped samples
 
 bootRes <- matrix(data = 0, nrow = NRepeat, ncol = 1) # results
 
@@ -119,7 +121,7 @@ for (i in 1:NRepeat){
   }
 }
 
-
+VecProb <- bootRes[c(100:nrow(bootRes)),]
 
 
 ```
