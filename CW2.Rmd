@@ -33,7 +33,8 @@ detectCores()
 ## 8 
 
 
-
+## check the system code ##
+#profvis
 
 
 
@@ -87,7 +88,7 @@ obsData <- data.frame(x, y)
 
 # Initialisation
 
-NRepeat <- 50000 # no. of bootstrapped samples
+NRepeat <- 50 # no. of bootstrapped samples
 
 ## Column of results (propbabilities of each bootstrap iteration)
 
@@ -96,8 +97,6 @@ bootRes <- matrix(data = 0, nrow = NRepeat, ncol = 1)
 
 S <- rep(0, num_sim)
 
-
-## Got to run it twice???
 
 
 ## Loop across all samples:
@@ -124,13 +123,14 @@ for (i in 1:(NRepeat)){
       
       bootRes[i] <- (sum(S)/num_sim)
       
-     S <- rep(0, num_sim) 
+      S <- rep(0, num_sim) 
   
 }
 
+#print(bootRes)
 
-
-
+summary(bootRes)
+hist(bootRes)
 
 ```
 
@@ -148,4 +148,112 @@ losses (whichever comes first - no draws allowed). Assume a fixed win rate p ∈
 3 losses, the maximum likelihood point estimate for their win rate is 40%). Specifically, focus on the
 effect driven by the format of this tournament.
 
+
 --->
+
+
+
+```{r, echo = FALSE}
+set.seed(3103)
+
+N_Repeat <- 100 # no. of competitions entered 
+# nbr_games <- 
+
+
+## fixed prob over all games
+
+pw <- runif(n = 1, min = 0, max = 1)
+
+#pl <- (1-pw)
+
+
+## Empty vector
+## WIN == 1
+## LOSS == 0
+
+## game end if:
+
+## 7 wins or
+## 3 losses
+## max games is 9
+
+WINorLOSS = c(data = NULL)
+
+
+
+## if frequency of 0 ==3 or 1==7 game ends
+
+
+## what is expected number of games?
+
+                    ##while (sum(length(WINorLOSS[WINorLOSS == 1])) = 7 | sum(length(WINorLOSS[WINorLOSS == 0])) = 3{
+                          ##while (count(WINorLOSS[WINorLOSS == w]) = 7 | count(WINorLOSS[WINorLOSS == l] = 3)){
+
+
+
+pw <- runif(n = 1, min = 0, max = 1)  
+pl =1 - pw
+    
+  
+
+  ## create vector of two random probabilities: pw or pl
+r = 10
+x =   rep(c(pw,pl), each= r)
+x
+
+## Randomize probabilities:
+
+rand <- sample(x)        #  use Sample 
+rand  
+  
+
+
+
+
+
+
+
+
+for (i in 1:length(rand)) {
+  
+
+if (rand[i] == pw){
+  
+  #WINorLOSS <- c(WINorLOSS, 0)
+  
+  WINorLOSS <- c(WINorLOSS, 1)
+
+} else {
+  WINorLOSS <- c(WINorLOSS, 0)
+}  
+
+  if (sum(length(WINorLOSS[WINorLOSS == 1])) == 7 | sum(length(WINorLOSS[WINorLOSS == 0])) == 3){
+    
+    ## Break code
+    
+    {break}
+    
+  }
+  
+  
+  
+}
+  
+WINorLOSS
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+
+```
