@@ -28,11 +28,12 @@ Monte Carlo simulations.
 
 library(parallel)
 library(ggplot2)
+library(dplyr)
 
 detectCores()
 
 ## 8 
-
+##clusterExport(cl, ls())
 
 ## check the system code ##
 #profvis
@@ -44,6 +45,8 @@ detectCores()
 num_sim = 100
 
 set.seed(314)
+
+Prob_calc <- function(){
 
 ## create a vector of length num_sim of all zeros:
 P <- rep(0, num_sim) 
@@ -62,7 +65,9 @@ if(X>Y){
 
 print(sum(P)/num_sim)
 
-
+}
+# run: 
+Prob_calc()
 
 
 ## Use bootstrapping to derive the sampling distribution for your estimate of Pr(X > Y)
@@ -157,17 +162,15 @@ effect driven by the format of this tournament.
 
 
 ```{r, echo = FALSE}
-N_Repeat <- 100 # no. of competitions entered 
+N_Repeat <- 50# no. of competitions entered 
 
-pwins <- c()   # empty vector for winning probabilities
 
-K <- c()
+
+## For one game:
 
 Loop <- function (j){
   
-  
-  # set seed????
-  #set.seed(j)
+  set.seed(j)
   
   
   WINorLOSS = c(data = NULL)
@@ -192,9 +195,7 @@ Loop <- function (j){
   for (i in 1:length(rand)) {
     
     
-K[i] <- sample((rand[rand == pw]), size=1) # take one value from rand vector st its the pw value
-   
-  
+    
     if (rand[i] == pw){
       
       WINorLOSS <- c(WINorLOSS, 1)
@@ -203,12 +204,11 @@ K[i] <- sample((rand[rand == pw]), size=1) # take one value from rand vector st 
     
     if (rand[i] == pl){
       WINorLOSS <- c(WINorLOSS, 0)
-      
     } 
     
     if (sum(length(WINorLOSS[WINorLOSS == 1])) == 7 | sum(length(WINorLOSS[WINorLOSS == 0])) == 3){
-       
-      #plot(Total_G, pw, cex = 1, pch = 3, xlab ="x", ylab ="y", col ="black")
+      Prob_perGame = c()     
+      Prob_perGame <- pw
       Total_game <- length(WINorLOSS)
       {break}
       
@@ -217,37 +217,62 @@ K[i] <- sample((rand[rand == pw]), size=1) # take one value from rand vector st 
     
   }
   
+  z1<-Total_game
+  z2<-pw  
+  z3<-z1*z2 #games won
+  z4<-z1 - z3 #games lost
+  Z<-data.frame(z1, z2, z3, z4)
   
   
-  print(Total_game)
-  #plot(Total_G, pw, cex = 1, pch = 3, xlab ="x", ylab ="y", col ="black")
   
-  #points(Total_G, pw, cex = 2, pch = 6, col ="blue")
 }
 
-#Loop(333) (works!)
 
-Total_G <- c()
 
+n1 = c()
+n2 = c()
+n3 = c()
+n4 = c()
 
 for (k in 1:N_Repeat) {
-  Total_G[k] <- Loop(k)
+  n1[k] <- dplyr::pull(Loop(k), z1)  #pull out nbr of games
+  n2[k] <- dplyr::pull(Loop(k), z2)  #pull out win rate
+  n3[k] <- dplyr::pull(Loop(k), z3)  #pull out win count
+  n4[k] <- dplyr::pull(Loop(k), z4)  #pull out loss count
 } 
 
-#summary(Total_G)
-#
-#plot(1:N_Repeat ,Total_G)
-#plot(Total_G)
-#hist(Total_G)
+#Round to nearest integer
 
-# Data.Game <- data.frame(1:N_Repeat ,Total_G)
+n3 <-round(n3) 
+n4 <- round(n4)
 
-#ggplot(Data.Game) +
-#  geom_line(aes(y = Total_G, x = 1:N_Repeat))+
-#  geom_hline(yintercept=mean(Total_G), color= "red")+
-#  labs(colour = "Total games")+ 
-#  xlab("Number of games playes") +
-#  ylab("Total games") +
-#  coord_cartesian(ylim = c(0, 12))
+
+
+
+
+
+Tgames <- n1 # total games
+pWin <- n2 # prob of winning in game
+Game_won <- n3 # games won
+Game_lost = n4 # games lost
+
+
+
+plot(n2, n1)
+
+plot(n1,n3, col = "blue") #nbr of games won
+
+#points(n1,n4, col = "red") 
+plot(n1,n4, col = "red") #nbr of games lost
+
+WinRate <- pWin
+ObservedWinRate  <- Game_won/Tgames
+
+plot(WinRate, ObservedWinRate)
+
+
+
+
+
 
 ```
