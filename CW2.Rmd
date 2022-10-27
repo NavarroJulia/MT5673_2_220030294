@@ -98,61 +98,49 @@ Having now obtained a method to approximate our probability, we will now use the
 
 We create a data framae object and input these new randomly choosen values for $X$ and $Y$. The loop compares the first and second column values from the the $j^{th}$ row. If the one for $X$ is larger, again, assign a vector the value 1 at this value of the loop. Repeat this for all $j$ values and find the probability and store this in the $i^{th}$ entry of our result vector. The two for loops, once concluded, will yield a vector of probabilities. We can analysise how it differs compared to the exact value for the probability (see the summary output). Note how the probabilities vary.
  
+Calculate variance for 1: 100 : num_sim, is there any change in variance with respect to the loop? 
+ 
+ 
 <br>
 
 ```{r, echo = FALSE, comment=NA}
 
+set.seed(314)
 
-
-
-## calculate each probability and store it in vector and then find sampling distribution
-
-
-## Show how the sample variance of this sampling distribution changes as a function of the number of
-## Monte Carlo simulations.
-
-
-
+## size of sample (from which bootstrap from)
+Size = 30 
 
 ## create vectors of probabilities:
-x <- rnorm(num_sim, mean=4, sd=sqrt(10))
-y <- runif(num_sim, min=2, max=8)
+x <- rnorm(Size, mean=4, sd=sqrt(10))
+y <- runif(Size, min=2, max=8)
 
 ## store in data.frame:
 obsData <- data.frame(x, y) 
 
 
+## no. of increasing bootstrapping samples 
+#NRepeat = c(10, 20, 30, 50, 75, 100, 150, 200, 350, 500, 750, 1000) 
+NRepeat = seq(0, 1000, length.out = 101)
 
+## Column of results (probabilities of each bootstrap iteration)
+bootRes <- matrix(data = 0, nrow = Size, ncol = 1) 
 
-## need data from both X and Y. We then use the bootstrap method with replacement and apply the function
-## as used above to calculate the probability (need to derive a sampling distribution)
-
-
-# Initialisation
-
-NRepeat <- 50 # no. of bootstrapped samples
-
-## Column of results (propbabilities of each bootstrap iteration)
-
-bootRes <- matrix(data = 0, nrow = NRepeat, ncol = 1) 
-
-
-S <- rep(0, num_sim)
-
+## create vectors for later use
+S <- rep(0, Size)
+VarResults <- c()
 
 
 ## Loop across all samples:
+for (h in 1:length(NRepeat)) {
+  
 
-
-for (i in 1:(NRepeat)){
+for (i in 1:NRepeat[h]){
   
   ## Resample with replacement:
-  
-  bootData <- obsData[sample(x = num_sim, size = num_sim, replace = T),]
+  bootData <- obsData[sample(x = Size, size = Size, replace = T),]
   
   
   ## calculate the probability associated with this new shuffled data:
-  
   for (j in 1:nrow(bootData)){
     
     if(bootData[j,1] > bootData[j,2]){
@@ -160,28 +148,37 @@ for (i in 1:(NRepeat)){
       S[j] <- 1
       
     }}
-    
-    
-      
-      bootRes[i] <- (sum(S)/num_sim)
-      
-      S <- rep(0, num_sim) 
+  
+  
+  ## calculate and store probabilities:
+  bootRes[i] <- (sum(S)/Size)
+  
+  ## reset this vector for the next loop:
+  S <- rep(0, Size) 
+  
+  
   
 }
+  ## calculate the variance and note how it decreases w.r.t. to nbr of bootstaps!
+  VarResults[h] <- var((bootRes))   
+}  
 
-#print(bootRes)
+## plot sample variance of this sampling distribution changes as a function of the number of Monte Carlo simulations:
+## ie plot VarResults against NRepeat:
 
-## create table of min, max, median and mean
+plot(VarResults, NRepeat)
 
-#summary(bootRes)
-#hist(bootRes)
-#Mean <- summary(bootRes)[4,]
+Data.Var <- data.frame(VarResults, NRepeat)
 
-# boxplot?
+ggplot(Data.Var, aes(x=NRepeat, y=VarResults)) +
+     geom_line() +
+     geom_point()+
+     xlab("Number of simulations performed") +
+     ylab("Sample variance")+
+     ggtitle("Variance plotted against number of Monte Carlo simulations")+
+     geom_hline(yintercept = min(VarResults), color='red', lty='dashed', lwd=1)+
+     geom_hline(yintercept = max(VarResults), color='red', lty='dashed', lwd=1)
 
-
-
-## variance per bootstrap
 
 ```
 
@@ -190,7 +187,7 @@ for (i in 1:(NRepeat)){
 | Min. Value      |    `r min(bootRes) `|                   
 | Max.  Value     |`r max(bootRes)`     |
 |  Median         | `r median(bootRes)` |
- |  Mean          |  `r mean(bootRes)`  |
+|  Mean           |  `r mean(bootRes)`  |
 
 
 <br>
@@ -229,10 +226,13 @@ Explain how we went about coding this problem:
 The basic idea is to translate one competition into a function, then loop the function over $j$ values (the function, Loop(), is a function of $j$). To ensure that each competition has a fixed win rate, we set the seed in the $j^{th}$ iteration a $j$. We then randomly generate a value for the win rate ($p_w\;\in\;(0,\;1)$) and lose rate ($p_l = 1 - p_w$), and assign these to a vector $x$. Each win and loss rate is placed into the vector 30 times and then we sample this vector (shuffle the probabilities in $x$ into a new vector, *rand* ). Then begin a loop which last 9 iterations (number of maximum number of games possible) and check whether in the $i^{th}$ position there is a $p_w$ value or a $p_l$ value in *rand*. If our winning probability is present, another vector, accounting for the games played (*WINorLoss*), receives a 1 in this position of the iteration. If a losing probability is detected, a 0 is placed in the vector at the step. Each time this is performed we must check that the number of 1s and 0s does not exceed 7 or 3, respectively. If it does, and it will, we break out of the loop.
 
 
+(Actually works if repeated enough times, but still check) Change so the win rate increases from ~0 to ~1:
+
 
 ```{r, echo = FALSE}
 N_Repeat <- 20# no. of competitions entered 
 
+## for increasing win rate **
 
 
 ## For one game:
@@ -247,6 +247,7 @@ Loop <- function (j){
   ## fixed prob over all games
   pw <- runif(n = 1, min = 0, max = 1)  
   pl <- 1 - pw  
+  
   ## create vector of two random probabilities: pw or pl
   r = 30
   x = rep(c(pw,pl), each= r)
@@ -296,7 +297,7 @@ Loop <- function (j){
   
 }
 
-
+# immediately rename:
 
 n1 = c()
 n2 = c()

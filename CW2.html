@@ -428,6 +428,8 @@ two for loops, once concluded, will yield a vector of probabilities. We
 can analysise how it differs compared to the exact value for the
 probability (see the summary output). Note how the probabilities
 vary.</p>
+<p>Calculate variance for 1: 100 : num_sim, is there any change in
+variance with respect to the loop?</p>
 <p><br></p>
 <table>
 <thead>
@@ -509,6 +511,8 @@ iteration. If a losing probability is detected, a 0 is placed in the
 vector at the step. Each time this is performed we must check that the
 number of 1s and 0s does not exceed 7 or 3, respectively. If it does,
 and it will, we break out of the loop.</p>
+<p>(Actually works if repeated enough times, but still check) Change so
+the win rate increases from ~0 to ~1:</p>
 <p>To repeat this process such that we simulate multiple tournaments, we
 loop <span class="math inline">\(j\)</span> = 20 times. Each iteration
 of this particular loop, we extract vectors containing: the total games
