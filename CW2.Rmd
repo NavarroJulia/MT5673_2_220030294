@@ -53,7 +53,7 @@ Our first task involves the calculation of the probability that $X ∼ N (µ = 4
 
 ## Compute the probability that X > Y , i.e. Pr(X > Y ):
 
-num_sim = 5000
+num_sim = 50
 
 set.seed(314)
 
@@ -113,9 +113,6 @@ We create a data framae object and input these new randomly choosen values for $
 
 
 
-
-## set seed:
-set.seed(413)
 
 ## create vectors of probabilities:
 x <- rnorm(num_sim, mean=4, sd=sqrt(10))
@@ -182,6 +179,9 @@ for (i in 1:(NRepeat)){
 
 # boxplot?
 
+
+
+## variance per bootstrap
 
 ```
 
@@ -261,7 +261,7 @@ Loop <- function (j){
   
   
   
-  for (i in 1:11) {
+  for (i in 1:9) {
     
     
     
@@ -326,7 +326,6 @@ Game_won = n3 # games won
 Game_lost = n4 # games lost
 
 
-
 #plot(n2, n1)
 
 #plot(n1,n3, col = "blue") #nbr of games won
@@ -349,6 +348,19 @@ To repeat this process such that we simulate multiple tournaments, we loop $j$ =
 plot(WinRate, ObservedWinRate, pch = 20)
 abline(a=0, b=1, col = "blue", lwd = 2) ## diagonal line y = x
 abline(lm(WinRate ~ ObservedWinRate), col = "red", lty = 2, lwd = 2) ## fitted line
+
+DataF <- data.frame(Tgames, WinRate)
+
+LossRate = 1 - WinRate
+
+Dataf <- data.frame(Tgames, LossRate)
+
+
+  ggplot(DataF) +
+  geom_col(aes(y = Tgames, x = WinRate), width = 0.008)
+  
+   ggplot(Dataf) +
+  geom_col(aes(y = Tgames, x = LossRate))
 
 
 
