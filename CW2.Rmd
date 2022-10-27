@@ -40,11 +40,12 @@ Problem A
 
 <br>
 
-Our first task involves the calculation of the probability that $X ∼ N (µ = 4,\;σ^2 = 10)$ is larger than $Y∼ U(a = 2,\:b = 8)$. We begin by generating an empty vector $\hat{P}$ of all zeros in which our values ($0$ or $1$) will be stored in. Next, we create a for loop so that each time a random pain of X and Y are printed. They are subsequently compared and if $X$ is in fact larger than $Y$, a "1" it placed in the $i^{th}$ position in the zero vector, There is no need to worry to what happens if Y>=x as the null vector already accomodates this condition by default. We can choose the number of loops we would like, and note that increasing this will result in a more accurate probability $P(X>Y)$. After the loop has ended we simply sum up the components in $\hat{P}$ and divide by the number of loops (or random pairs generated). This gives us an approximation to the probability:
+(Try and parallelise this part!)
 
-<br>
+Our first task involves the calculation of the probability that $X ∼ N (µ = 4,\;σ^2 = 10)$ is larger than $Y∼ U(a = 2,\:b = 8)$. We begin by generating an empty vector $\hat{P}$ of all zeros in which our values ($0$ or $1$) will be stored in. Next, we create a for loop so that each time a random pain of X and Y are printed. They are subsequently compared and if $X$ is in fact larger than $Y$, a "1" it placed in the $i^{th}$ position in the zero vector, There is no need to worry to what happens if Y>=x as the null vector already accomodates this condition by default. We can choose the number of loops we would like, and note that increasing this will result in a more accurate probability $P(X>Y)$. After the loop has ended we simply sum up the components in $\hat{P}$ and divide by the number of loops (or random pairs generated). 
 
-``` {r, echo = FALSE, comment=NA}
+
+``` {r, echo = FALSE, comment=NA, results = "hide"}
 
 ## check the system code ##
 #profvis
@@ -53,11 +54,11 @@ Our first task involves the calculation of the probability that $X ∼ N (µ = 4
 
 ## Compute the probability that X > Y , i.e. Pr(X > Y ):
 
-num_sim = 50
+num_sim = 5000
 
 set.seed(314)
 
-Prob_calc <- function(){
+
 
 ## create a vector of length num_sim of all zeros:
 P <- rep(0, num_sim) 
@@ -74,15 +75,19 @@ if(X>Y){
       }
 }
 
-print(sum(P)/num_sim)
+Prob1 <- print(sum(P)/num_sim)
 
-}
-# run: 
-Prob_calc()
+
 
 
 ```
+This gives us an approximation to the probability `r Prob1` where we used `r num_sim` loops.
+
 <br>
+
+
+
+
 
 <!---
 
@@ -98,10 +103,7 @@ Having now obtained a method to approximate our probability, we will now use the
 
 We create a data framae object and input these new randomly choosen values for $X$ and $Y$. The loop compares the first and second column values from the the $j^{th}$ row. If the one for $X$ is larger, again, assign a vector the value 1 at this value of the loop. Repeat this for all $j$ values and find the probability and store this in the $i^{th}$ entry of our result vector. The two for loops, once concluded, will yield a vector of probabilities. We can analysise how it differs compared to the exact value for the probability (see the summary output). Note how the probabilities vary.
  
-Calculate variance for 1: 100 : num_sim, is there any change in variance with respect to the loop? 
- 
- 
-<br>
+
 
 ```{r, echo = FALSE, comment=NA}
 
@@ -120,7 +122,13 @@ obsData <- data.frame(x, y)
 
 ## no. of increasing bootstrapping samples 
 #NRepeat = c(10, 20, 30, 50, 75, 100, 150, 200, 350, 500, 750, 1000) 
-NRepeat = seq(0, 1000, length.out = 101)
+
+## Length
+L=1000
+
+## vector of number of simulations. We calculate for each entry the variance of the 
+## resulting probability vector bootRes.
+NRepeat = seq(0+1, L, by = 10)
 
 ## Column of results (probabilities of each bootstrap iteration)
 bootRes <- matrix(data = 0, nrow = Size, ncol = 1) 
@@ -166,21 +174,17 @@ for (i in 1:NRepeat[h]){
 ## plot sample variance of this sampling distribution changes as a function of the number of Monte Carlo simulations:
 ## ie plot VarResults against NRepeat:
 
-plot(VarResults, NRepeat)
+#plot(VarResults, NRepeat)
 
-Data.Var <- data.frame(VarResults, NRepeat)
-
-ggplot(Data.Var, aes(x=NRepeat, y=VarResults)) +
-     geom_line() +
-     geom_point()+
-     xlab("Number of simulations performed") +
-     ylab("Sample variance")+
-     ggtitle("Variance plotted against number of Monte Carlo simulations")+
-     geom_hline(yintercept = min(VarResults), color='red', lty='dashed', lwd=1)+
-     geom_hline(yintercept = max(VarResults), color='red', lty='dashed', lwd=1)
 
 
 ```
+
+
+<!---
+
+With the following statistics on the probability vector *bootRes*.
+
 
 | Statistic calculated:| Values:
 |:---------------- |:---------------------
@@ -189,10 +193,29 @@ ggplot(Data.Var, aes(x=NRepeat, y=VarResults)) +
 |  Median         | `r median(bootRes)` |
 |  Mean           |  `r mean(bootRes)`  |
 
+--->
+
+One can notice that as the number of simulations increases, the values in the above table tend to a certain value (the actual probability `r Prob1`). Thus, the more times the monte carlo simulation for the probability is computed, the more accurate the bootstap approximation becomes.
 
 <br>
 
-One can notice that as the number of simulations increases, the values in the above table tend to a certain value (the actual probability). Thus, the more times the monte carlo simulation for the probability is computed, the more accurate the bootstap approximation becomes.
+```{r, echo = FALSE}
+
+Data.Var <- data.frame(VarResults, NRepeat)
+
+ggplot(Data.Var, aes(x=NRepeat, y=VarResults)) +
+     geom_line() +
+     geom_point()+
+     xlab("Number of simulations performed") +
+     ylab("Sample variance of probabilities (from bootRes)")+
+     ggtitle("Variance plotted against number of Monte Carlo simulations")+
+     geom_hline(yintercept = min(VarResults), color='red', lty='dashed', lwd=1)+
+     geom_hline(yintercept = max(VarResults), color='red', lty='dashed', lwd=1)
+
+
+```
+
+
 
 <br><br>
 
