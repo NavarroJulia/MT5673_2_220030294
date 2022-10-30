@@ -39,10 +39,7 @@ Problem A
 
 --->
 
-
-(Try and parallelise this part!) - tried, too long to figure it out
-
-Our first task involves the calculation of the probability that $X ∼ N (µ = 4,\;σ^2 = 10)$ is larger than $Y∼ U(a = 2,\:b = 8)$. We begin by generating an empty vector $\hat{P}$ of all zeros in which our values ($0$ or $1$) will be stored in. Next, we create a for loop so that each time a random pain of X and Y are printed. They are subsequently compared and if $X$ is in fact larger than $Y$, a "1" it placed in the $i^{th}$ position in the zero vector, There is no need to worry to what happens if Y>=x as the null vector already accomodates this condition by default. We can choose the number of loops we would like, and note that increasing this will result in a more accurate probability $P(X>Y)$. After the loop has ended we simply sum up the components in $\hat{P}$ and divide by the number of loops (or random pairs generated). 
+Our first task involves the calculation of the probability that $X ∼ N (µ = 4,\;σ^2 = 10)$ is larger than $Y∼ U(a = 2,\:b = 8)$. We begin by generating an empty vector $\hat{P}$ of all zeros in which our values ($0$ or $1$) will be stored in. Next, we create a for loop so that each time a random pair of $X$ and $Y$ are printed. They are subsequently compared and if $X$ is in fact larger than $Y$, a "1" it placed in the $i^{th}$ position in the zero vector. There is no need to worry to what happens when $Y > X$ as the null vector already accomodates this condition by default (a 0 in the position). We can choose the number of loops we would like, and note that increasing this will result in a more accurate probability $P(X>Y)$. After the loop has ended we simply sum up the components in $\hat{P}$ and divide by the number of loops (or random pairs generated). 
 
 
 ``` {r, echo = TRUE, comment=NA, results = "hide"}
@@ -57,7 +54,7 @@ num_sim = 50000
 set.seed(314)
 
 ## create a vector of length num_sim of all zeros:
-P <- rep(0, num_sim) 
+P_hat <- rep(0, num_sim) 
 
 for(i in 1:num_sim){
 
@@ -66,15 +63,15 @@ Y <- runif(1, min=2, max=8)
 
 if(X>Y){
   
-  P[i] <- 1
+  P_hat[i] <- 1
   
       }
 }
 
-Prob1 <- print(sum(P)/num_sim)
+Prob1 <- print(sum(P_hat)/num_sim)
 
 ```
-This gives an approximation of the probability, `r Prob1`, where we used `r num_sim` loops.
+This gives an approximation of the probability, `r Prob1`, where we used `num_sim` loops.
 
 <br>
 
@@ -89,13 +86,15 @@ Monte Carlo simulations.
 
 # Bootstrapping the probability
 
-Having now obtained a method to approximate our probability, we will now use the bootstrapping method for approximating the probability for a small sample. We shall perform this as follows: we generate a data frame of length equal to our sample (which is used in the bootstapping method) which contains random probabilities for $X$ and $Y$. 
+Having now obtained a method to approximate our probability, we will now use the bootstrapping method for approximating the probability for a small sample. We shall perform this as follows: we generate a data frame of length equal to our sample, of size `Size` (which is used in the bootstapping method) which contains random probabilities for $X$ and $Y$. Because we are interested in how the sample variance behaves as we increase the number of loops performed we creat a vector `NRepeat` which contains in each entry increasing number of loops. `L` denotes the maximum number of iterations, and we will take steps from 10 to `L` in increments of 10.
 
-<br>
+The main body of code consists of three for loops and an if statement. The inner-most loop checks our now randomized data set whether $X>Y$, and inserts a '1' into the position of a new vector `S` if this holds. Then we calculate the probability and reset the `S` vector to 0 for the next iteration of the second for loop (so that probabilities do not increase). The second loop takes in an entry from `NRepeat` (which contains different number of loops to be performed) and the third and final loop, loops through all the entries in `NRepeat`. In this third loop we calculate the different variances associated with the different number of simulations calculated which are used later for plotting purposes.
+
 
 ```{r, echo = TRUE}
+## (Parallelise this using sapply: sapply(x, function))
 
-set.seed(1)
+set.seed(314)
 
 ## size of sample (from which bootstrap from)
 Size = 30 
@@ -157,14 +156,7 @@ for (i in 1:NRepeat[h]){
 }
   ## calculate the variance and note how it decreases w.r.t. to nbr of bootstaps!
   VarResults[h] <- var((bootRes))   
-}  
-
-## plot sample variance of this sampling distribution changes as a function of the number of Monte Carlo simulations:
-## ie plot VarResults against NRepeat:
-
-#plot(VarResults, NRepeat)
-
-
+} 
 
 ```
 <br>
@@ -182,7 +174,7 @@ With the following statistics on the probability vector *bootRes*.
 |  Mean           |  `r mean(bootRes)`  |
 
 --->
-To investigate the behavior of the sample variance with respect to the number of simulations performed, we have run this code for a variety of loops. For example, in our code we we calculated `r length(NRepeat)` separate loops: (`r  NRepeat`). We will next investigate how the number of Monte Carlo simulations run can affect the sample variance.
+To investigate the behavior of the sample variance with respect to the number of simulations performed, we have run this code for a variety of loops. For example, in our code we we calculated `r length(NRepeat)` separate loops. We will next investigate how the number of Monte Carlo simulations run can affect the sample variance.
 
 
 <br>
@@ -203,7 +195,7 @@ ggplot(Data.Var, aes(x=NRepeat, y=VarResults)) +
 
 ```
 
-From the plot above we can clearly infer how increasing the number of bootstrapping loops performed will result in the decrease of the variance.
+From the plot above we can clearly infer how increasing the number of bootstrapping loops performed will result in the decrease of the variance. Note that the code will take quite some time to run through the loops, especially when L (the number of simulations performed) becomes large. We could improve efficiency of the code by utilising a combination of parallel computing and sapply.
 
 
 
@@ -380,7 +372,7 @@ theme_set(theme_bw())
 ggplot(Data_WT) +
    geom_col(aes(WinRate, Tgames), width = 0.005)+
    labs(y="Total games played", 
-        x="Probability of winning ($p_w$)", 
+        x="Probability of winning (p_w)", 
         title="Total games against winning probability")
 
 
