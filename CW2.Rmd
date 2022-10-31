@@ -1,6 +1,5 @@
 ---
 title: "Monte Carlo simulation in R"
-
 author: "Julia N. Navarro"
 date: "October 2022"
 output: html_document
@@ -15,7 +14,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```
 
-
+GitHub repository: https://github.com/NavarroJulia/MT5673_2_220030294.git
 
 ```{r load-packages, include=FALSE, comment=NA}
 library(parallel)
@@ -67,8 +66,10 @@ if(X>Y){
 
 Prob1 <- print(sum(P_hat)/num_sim)
 
+prob1 <- 100*Prob1
+
 ```
-This gives an approximation of the probability, `r Prob1`, where we used `num_sim` loops.
+This gives an approximation of the probability, `r Prob1`, where we used `num_sim` loops, i.e., the probability of $X>Y$ is `r prob1`%. 
 
 <br>
 
@@ -83,7 +84,7 @@ Monte Carlo simulations.
 
 # Bootstrapping the probability
 
-Having now obtained a method to approximate our probability, we will now use the bootstrapping method for approximating the probability for a small sample. We shall perform this as follows: we generate a data frame of length equal to our sample, of size `Size` (which is used in the bootstapping method) which contains random probabilities for $X$ and $Y$. Because we are interested in how the sample variance behaves as we increase the number of loops performed we creat a vector `NRepeat` which contains in each entry increasing number of loops. `L` denotes the maximum number of iterations, and we will take steps from 10 to `L` in increments of 10.
+Having now obtained a method to approximate our probability, we will now use the bootstrapping method for approximating the probability for a small sample. We shall perform this as follows: we generate a data frame of length equal to our sample, of size `Size` (which is used in the bootstapping method) which contains random probabilities for $X$ and $Y$. Because we are interested in how the sample variance behaves as we increase the number of loops performed we creat a vector `NRepeat` which contains in each entry increasing number of loops. `L` denotes the maximum number of iterations and it will take steps from 10 to `L` in increments of 10, but this can be changed for either larger or even smaller steps.
 
 The main body of code consists of three for loops and an if statement. The inner-most loop checks our now randomized data set whether $X>Y$, and inserts a '1' into the position of a new vector `S` if this holds. Then we calculate the probability and reset the `S` vector to 0 for the next iteration of the second for loop (so that probabilities do not increase as we iterate). The second loop takes in an entry from `NRepeat` (which contains different number of loops to be performed) and the third and final loop, loops through all the entries in `NRepeat`. In this third loop we calculate the different variances associated with the different number of simulations calculated which are used later for plotting purposes.
 
@@ -151,7 +152,7 @@ for (i in 1:NRepeat[h]){
   
   
 }
-  ## calculate the variance and note how it decreases w.r.t. to nbr of bootstaps!
+  ## calculate the variance and note how it decreases w.r.t. to nbr. of bootstraps:
   VarResults[h] <- var((bootRes))   
 } 
 
@@ -159,15 +160,7 @@ for (i in 1:NRepeat[h]){
 
 <!---
 
-With the following statistics on the probability vector *bootRes*.
 
-
-| Statistic calculated:| Values:
-|:---------------- |:---------------------
-| Min. Value      |    `r min(bootRes) `|                   
-| Max.  Value     |`r max(bootRes)`     |
-|  Median         | `r median(bootRes)` |
-|  Mean           |  `r mean(bootRes)`  |
 
 --->
 To investigate the behavior of the sample variance with respect to the number of simulations performed, we have run this code for a variety of loops. For example, in our code we we calculated `r length(NRepeat)` separate loops. We will next investigate how the number of Monte Carlo simulations run can affect the sample variance.
@@ -192,7 +185,7 @@ ggplot(Data.Var, aes(x=NRepeat, y=VarResults)) +
 ```
 <br>
 
-From the plot above we can clearly infer how increasing the number of bootstrapping loops performed will result in the decrease of the variance. Note that the code will take quite some time to run through the loops, especially when L (the number of simulations performed) becomes large. We sould improve efficiency of the code by utilizing a combination of parallel computing and sapply.
+From the plot above we can clearly infer how increasing the number of bootstrapping loops performed will result in the decrease of the variance. Note that the code will take quite some time to run through the loops, especially when L (the number of simulations performed) becomes large. We should improve efficiency of the code by utilizing a combination of parallel computing and sapply.
 
 <!---
 Note besides: I tried to increase efficiency but had troubles implementing sapply and parallel computing in the code.
@@ -227,7 +220,7 @@ effect driven by the format of this tournament.
 
 --->
 
-The next problem at hand is the monte carlo simulation of a hypotheical football tournament. The game is constrained by the following rules: 3 losses or 7 wins (no draws permitted) will result in the termination of the tournament. The goal is to find the expected number of games that will be played as a result of these conditions and where the scoring (winning) probability is fixed. Moreover, we would like to compare how the predicted wins differ to the observed successes.
+The next problem at hand is the Monte Carlo simulation of a hypothetical football tournament. The game is constrained by the following rules: 3 losses or 7 wins (no draws permitted) will result in the termination of the tournament. The goal is to find the expected number of games that will be played as a result of these conditions and where the scoring (winning) probability is fixed. Moreover, we would like to compare how the predicted wins differ to the observed successes.
 
 <!---
 
@@ -395,7 +388,7 @@ In this figure we plotted the observed win rate in each tournament simulated aga
 
 
 
-Perhaps the reason why we see this is based on the way we set up the rules of the game. Recall the 7 wins, or 3 losses are needed so that the game ends, but no draws are allowed, that is we only have 1 free variable. Whereas if we had another random probability, say $p_d$ which is the likelihood of a draw, we would have two probabilities which are random, and the losing probability would depend on these two. This could maybe change our results in a way that would be more realistic.
+Perhaps the reason why we see this is based on the way we set up the rules of the game. Recall the 7 wins, or 3 losses are needed so that the game ends, but no draws are allowed. Introducing another probability, $p_d$ (the likelihood of a draw), could maybe change our results in a way that would be more realistic.
 
 
 <br><br>
